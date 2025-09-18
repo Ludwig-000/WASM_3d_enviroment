@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>toyProject</title>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+
+        canvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="glcanvas" tabindex="1"></canvas>
+
+    <script src="https://not-fl3.github.io/miniquad-samples/mq_js_bundle.js"></script>
+    <script>
+        const wasmPath = ".\\target\\wasm32-unknown-unknown\\release\\toyProject.wasm";
+
+        // This mapping is needed because mq_js_bundle.js uses legacy key codes
+        // while modern browsers use `event.code`
+        const keyMap = {
+            "KeyW": 87, "KeyA": 65, "KeyS": 83, "KeyD": 68,
+            "ArrowUp": 38, "ArrowDown": 40, "ArrowLeft": 37, "ArrowRight": 39,
+            "Space": 32, "Enter": 13, "ShiftLeft": 16, "ControlLeft": 17,
+            "AltLeft": 18, "Escape": 27, "Tab": 9
+        };
+
+        // Load the WASM module
+        load(wasmPath).then(() => {
+            const canvas = document.getElementById('glcanvas');
+
+            // Focus the canvas on click to enable keyboard events
+            canvas.addEventListener('click', () => {
+                canvas.focus();
+                canvas.requestPointerLock().catch(e => console.log("Pointer lock failed:", e));
+            });
+
+            window.addEventListener('keydown', (event) => {
+                if (window.mq_js_bundle && window.mq_js_bundle.keydown) {
+                    const keyCode = keyMap[event.code];
+                    if (keyCode) {
+                        window.mq_js_bundle.keydown(keyCode);
+                    }
+                }
+            });
+
+            window.addEventListener('keyup', (event) => {
+                if (window.mq_js_bundle && window.mq_js_bundle.keyup) {
+                    const keyCode = keyMap[event.code];
+                    if (keyCode) {
+                        window.mq_js_bundle.keyup(keyCode);
+                    }
+                }
+            });
+        });
+
+    </script>
+</body>
+</html>
